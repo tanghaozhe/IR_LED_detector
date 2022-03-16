@@ -9,6 +9,7 @@ class Wand:
         self.color = color
         self.diff_frames = 0
 
+
     def check(self, signal):
         if self.template[self.pointer+1] == signal:
             self.pointer += 1
@@ -31,7 +32,10 @@ class Wand:
     def abort(self):
         self.pointer = -1
         self.detect_flag = False
-        # print("aborted!")
+        self.points = []
+        self.signals = []
+        self.diff_frames = 0
+        print("aborted!")
 
 
 # wand1 = Wand([0,1,1])

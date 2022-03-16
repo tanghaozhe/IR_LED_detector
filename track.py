@@ -55,7 +55,7 @@ def main():
     wand1 = Wand("wand1",[1,0,1,0],(0,0,255))
     wand2 = Wand("wand2",[1,1,0,0],(0,255,0))
     wands = [wand1,wand2]
-    videofile_path = "./data/0.25.mp4"
+    videofile_path = "./data/0.5.mp4"
     cap = cv2.VideoCapture(videofile_path)
     width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
     height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
@@ -90,9 +90,11 @@ def main():
                     pre_point = wand.points[-1]
                     dists = [math.sqrt((pre_point[0]-s0)**2 + (pre_point[1]-s1)**2) for s0, s1 in points]
                     min_dist = min(dists)
-                    if min_dist < 3000:
+                    if min_dist < 100:
                         cur_signal = 1
                         neigh_point = points[dists.index(min_dist)]
+                    else:
+                        wand.abort()
                 else:
                     cur_signal = 1
                     neigh_point = points[0]  # FIXME     
@@ -106,13 +108,13 @@ def main():
                 run_wand_flag = True
                 wand_signal = 1
                 wand_signal_n = get_signal_n(wand.diff_frames)
-                print("light frames:",wand.diff_frames,"count:",count)
+                # print("light frames:",wand.diff_frames,"count:",count)
                 wand.diff_frames = 0
 
             elif pre_signal==1 and cur_signal==0:
                 run_wand_flag = True
                 wand_signal = 0
-                print("black frames:",wand.diff_frames,"count:",count)
+                # print("black frames:",wand.diff_frames,"count:",count)
                 wand_signal_n = get_signal_n(wand.diff_frames)
                 wand.diff_frames = 0
 
