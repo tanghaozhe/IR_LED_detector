@@ -24,20 +24,20 @@ def get_points(frame):
             # draw the bright spot on the image
             (x, y, w, h) = cv2.boundingRect(c)
             ((cX, cY), radius) = cv2.minEnclosingCircle(c)
-            if radius < 4 or radius > 18:
+            if radius < 1 or radius > 18:
                 continue
             # good_pt.append(((cX, cY), radius))
             good_pt.append((cX, cY))
-            cv2.circle(frame, (int(cX), int(cY)), int(radius),(255, 0, 0), 3)
+            cv2.circle(frame, (int(cX), int(cY)), int(radius),(255,102,51), 3)
             # cv2.putText(frame, "#{}".format(i + 1), (x, y - 15),
             # cv2.FONT_HERSHEY_SIMPLEX, 0.45, (0, 0, 255), 2)
     return good_pt
 
 def main():
-    wand1 = WandObserver("wand1",[1,0,1,0,1,0,1,0],(0,0,255))
+    wand1 = WandObserver("wand1",[1,0,1,0,1,0,1,0],(102,204,255))
     wand2 = WandObserver("wand2",[1,1,0,0,1,1,0,0],(0,255,0))
     wands = [wand1,wand2]
-    videofile_path = "./data/0.5.mp4"
+    videofile_path = "./data/test.mp4"
     cap = cv2.VideoCapture(videofile_path)
     width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
     height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))

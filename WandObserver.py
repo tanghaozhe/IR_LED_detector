@@ -67,19 +67,16 @@ class WandObserver(Observer):
                 is_signal_changed  = False
             if is_signal_changed:
                 for _ in range(wand_signal_n):
-                    self.update(pre_signal, nt_point)
+                    self.update(pre_signal)
             elif len(cur_points) > 0:
-                if not self.bezier_curve:
+                if not self.bezier_curve and nt_point:
                     self.points[self.stroke_ix].append(nt_point)
         else:
             self.check(cur_points)
 
-    def update(self,signal, nt_point):
+    def update(self,signal):
         if next(self.template_iter) != signal:
             self.abort()
-        else:
-            if nt_point:
-                self.points[self.stroke_ix].append((int(nt_point[0]),int(nt_point[1])))
 
     def abort(self):
         self.stroke_ix += 1
