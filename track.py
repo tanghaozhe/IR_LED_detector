@@ -1,10 +1,9 @@
 import cv2
-from cv2 import threshold
 import numpy as np
 import os
 import imutils
 from imutils import contours
-from modules import WandObserver
+from WandObserver import WandObserver
 import math
 
 def get_points(frame):
@@ -34,18 +33,11 @@ def get_points(frame):
             # cv2.FONT_HERSHEY_SIMPLEX, 0.45, (0, 0, 255), 2)
     return good_pt
 
-def get_signal_num(diff_frames):
-    if diff_frames >= 13:
-        wand_signal_n = 2
-    elif diff_frames >= 0 and diff_frames <= 13:
-        wand_signal_n = 1
-    return wand_signal_n
-
 def main():
-    wand1 = WandObserver("wand1",[1,0,1,0],(0,0,255))
-    wand2 = WandObserver("wand2",[1,1,0,0],(0,255,0))
-    wands = [wand1]
-    videofile_path = "./data/0.25.mp4"
+    wand1 = WandObserver("wand1",[1,0,1,0,1,0,1,0],(0,0,255))
+    wand2 = WandObserver("wand2",[1,1,0,0,1,1,0,0],(0,255,0))
+    wands = [wand1,wand2]
+    videofile_path = "./data/0.5.mp4"
     cap = cv2.VideoCapture(videofile_path)
     width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
     height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
@@ -64,16 +56,11 @@ def main():
         rval, frame = cap.read()
         if not rval:
             break
-        # filename = os.path.sep.join(["./output", "test_{}".format(count)])
         count += 1
         points = get_points(frame)
 
         for wand in wands:
-            # if cur_wand != "" and cur_wand != wand.name:
-            #     pass
             wand(points)
-            # if wand.is_detected:
-            #     cur_wand = wand.name
             wand.draw(frame)
         videowriter.write(frame)
         
