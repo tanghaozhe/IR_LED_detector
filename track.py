@@ -25,7 +25,7 @@ def get_points(frame):
             # draw the bright spot on the image
             (x, y, w, h) = cv2.boundingRect(c)
             ((cX, cY), radius) = cv2.minEnclosingCircle(c)
-            if radius < 8 or radius > 18:
+            if radius < 4 or radius > 18:
                 continue
             # good_pt.append(((cX, cY), radius))
             good_pt.append((cX, cY))
@@ -44,8 +44,8 @@ def get_signal_num(diff_frames):
 def main():
     wand1 = WandObserver("wand1",[1,0,1,0],(0,0,255))
     wand2 = WandObserver("wand2",[1,1,0,0],(0,255,0))
-    wands = [wand1,wand2]
-    videofile_path = "./data/0.5.mp4"
+    wands = [wand1]
+    videofile_path = "./data/0.25.mp4"
     cap = cv2.VideoCapture(videofile_path)
     width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
     height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
@@ -60,6 +60,7 @@ def main():
     fourcc = cv2.VideoWriter_fourcc(*'mp4v')
     videowriter = cv2.VideoWriter("./output/output.mp4",fourcc, 30, (width,height))
     while 1:
+        # print(count)
         rval, frame = cap.read()
         if not rval:
             break
@@ -68,47 +69,11 @@ def main():
         points = get_points(frame)
 
         for wand in wands:
-            wand.diff_frames += 1
-            is_signal_changed = False
-            cur_signal = 0
-            stroke_ix = wand.stroke_ix
-            if len(points) > 0:
-                if len(wand.points[stroke_ix]) > 0:
-                    pre_point = wand.points[stroke_ix][-1]
-                    dists = [math.sqrt((pre_point[0]-s0)**2 + (pre_point[1]-s1)**2) for s0, s1 in points]
-                    min_dist = min(dists)
-                    if min_dist < 100:
-                        cur_signal = 1
-                        nt_point = points[dists.index(min_dist)]
-                    else:
-                        wand.abort()
-                else:
-                    cur_signal = 1
-                    nt_point = points[0]  # FIXME     
-
-            pre_signal = wand.pre_signal
-
-            if pre_signal==0 and cur_signal==1:
-                is_signal_changed = True
-                wand_signal = 1
-                wand_signal_n = get_signal_num(wand.diff_frames)
-                # print("light frames:",wand.diff_frames,"count:",count)
-                wand.diff_frames = 0
-
-            elif pre_signal==1 and cur_signal==0:
-                is_signal_changed = True
-                wand_signal = 0
-                # print("black frames:",wand.diff_frames,"count:",count)
-                wand_signal_n = get_signal_num(wand.diff_frames)
-                wand.diff_frames = 0
-
-            if is_signal_changed:
-                for i in range(wand_signal_n):
-                    wand(wand_signal)
-
-            if wand.is_detected:
-                wand.points[stroke_ix].append(nt_point)
-            
+            # if cur_wand != "" and cur_wand != wand.name:
+            #     pass
+            wand(points)
+            # if wand.is_detected:
+            #     cur_wand = wand.name
             wand.draw(frame)
         videowriter.write(frame)
         
