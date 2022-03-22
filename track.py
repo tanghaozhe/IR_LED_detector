@@ -37,15 +37,21 @@ def main():
     wand1 = WandObserver("wand1",[1,0,1,0,1,0,1,0],(102,204,255))
     wand2 = WandObserver("wand2",[1,1,0,0,1,1,0,0],(0,255,0))
     wands = [wand1,wand2]
-    videofile_path = "./data/test.mp4"
-    cap = cv2.VideoCapture(videofile_path)
-    width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-    height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-    fps = cap.get(cv2.CAP_PROP_FPS)
-    frame_all = cap.get(cv2.CAP_PROP_FRAME_COUNT)
-    print("[INFO] FPS: {}".format(fps))
-    print("[INFO] total frame: {}".format(frame_all))
-    print("[INFO] time: {}s".format(frame_all/fps))
+    videofile_path = "./data/team.mp4"
+    camera = False
+    if camera:
+        cap = cv2.VideoCapture(0)
+        width = 500
+        height = 500
+    else:
+        cap = cv2.VideoCapture(videofile_path)
+        width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+        height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        fps = cap.get(cv2.CAP_PROP_FPS)
+        frame_all = cap.get(cv2.CAP_PROP_FRAME_COUNT)
+        print("[INFO] FPS: {}".format(fps))
+        print("[INFO] total frame: {}".format(frame_all))
+        print("[INFO] time: {}s".format(frame_all/fps))
 
     rval, frame = cap.read()
     count = 0
@@ -62,10 +68,14 @@ def main():
         for wand in wands:
             wand(points)
             wand.draw(frame)
+        windowsize = (800, 600)
+        frame = cv2.resize(frame, windowsize)
+        cv2.imshow('frame',frame)
         videowriter.write(frame)
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
         
     videowriter.release()
-    cv2.waitKey(0)
     cap.release()
     cv2.destroyAllWindows()
 

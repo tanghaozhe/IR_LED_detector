@@ -68,6 +68,8 @@ class WandObserver(Observer):
             if is_signal_changed:
                 for _ in range(wand_signal_n):
                     self.update(pre_signal)
+                    if nt_point and self.bezier_curve:  # FIXME
+                        self.points[self.stroke_ix].append(nt_point)
             elif len(cur_points) > 0:
                 if not self.bezier_curve and nt_point:
                     self.points[self.stroke_ix].append(nt_point)
@@ -106,7 +108,7 @@ class WandObserver(Observer):
                         tmp = pts[:]
                         self.points[ix] = []
                         tmp_list = []
-                        for t in np.linspace(0, 1, 20):
+                        for t in np.linspace(0, 1, 50):
                             tmp_list.append(self.bezier(len(tmp)-1, t, pts))  
                         self.bezier_curve_points[ix].extend(tmp_list)
                     pts = np.array(self.bezier_curve_points[ix], dtype=np.int32)
