@@ -6,6 +6,9 @@ from imutils import contours
 from WandObserver import WandObserver
 import math
 
+use_camera = False
+videofile_path = "./data/team.mp4"
+
 def get_points(frame):
     gray  = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     blurred = cv2.GaussianBlur(gray , (9, 9), 0)
@@ -26,7 +29,6 @@ def get_points(frame):
             ((cX, cY), radius) = cv2.minEnclosingCircle(c)
             if radius < 1 or radius > 18:
                 continue
-            # good_pt.append(((cX, cY), radius))
             good_pt.append((cX, cY))
             cv2.circle(frame, (int(cX), int(cY)), int(radius),(255,102,51), 3)
             # cv2.putText(frame, "#{}".format(i + 1), (x, y - 15),
@@ -34,15 +36,13 @@ def get_points(frame):
     return good_pt
 
 def main():
-    wand1 = WandObserver("wand1",[1,0,1,0,1,0,1,0],(102,204,255))
+    wand1 = WandObserver("wand1",[1,1,0,0,1,1,0,1],(102,204,255))
     wand2 = WandObserver("wand2",[1,1,0,0,1,1,0,0],(0,255,0))
     wands = [wand1,wand2]
-    videofile_path = "./data/team.mp4"
-    camera = False
-    if camera:
+    if use_camera:
         cap = cv2.VideoCapture(0)
-        width = 500
-        height = 500
+        width = 800
+        height = 600
     else:
         cap = cv2.VideoCapture(videofile_path)
         width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
@@ -56,9 +56,10 @@ def main():
     rval, frame = cap.read()
     count = 0
     fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+    if not os.path.exists("./output"):
+        os.makedirs("./output")
     videowriter = cv2.VideoWriter("./output/output.mp4",fourcc, 30, (width,height))
     while 1:
-        # print(count)
         rval, frame = cap.read()
         if not rval:
             break
@@ -68,9 +69,10 @@ def main():
         for wand in wands:
             wand(points)
             wand.draw(frame)
-        windowsize = (800, 600)
-        frame = cv2.resize(frame, windowsize)
-        cv2.imshow('frame',frame)
+        if use_camera:
+            windowsize = (800, 600)
+            frame = cv2.resize(frame, windowsize)
+            cv2.imshow('frame',frame)
         videowriter.write(frame)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break

@@ -21,8 +21,7 @@ class WandObserver(Observer):
     def __init__(self, name, template, color):
         self.name = name
         self.template = template
-        self.pointer = -1
-        self.is_detected = False
+        self.is_detected = True
         self.points = [[]]
         self.bezier_curve_points = [[]]
         self.color = color
@@ -82,7 +81,6 @@ class WandObserver(Observer):
 
     def abort(self):
         self.stroke_ix += 1
-        self.pointer = -1
         self.is_detected = False
         self.points.append([])
         self.bezier_curve_points.append([])
@@ -158,7 +156,7 @@ class WandObserver(Observer):
         if input_signal_slice == self.template:
             self.is_detected = True
             self.input_signal.clear()
-            self.points[self.stroke_ix].append((int(cur_point[0]),int(cur_point[1])))
+            self.points[self.stroke_ix].append(cur_point)
             print(self.name," detected!")
 
     
