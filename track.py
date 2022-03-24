@@ -7,7 +7,7 @@ from WandObserver import WandObserver
 import math
 
 use_camera = False
-videofile_path = "./data/team.mp4"
+videofile_path = "./data/yellow.mp4"
 
 def get_points(frame):
     gray  = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
@@ -36,7 +36,7 @@ def get_points(frame):
     return good_pt
 
 def main():
-    wand1 = WandObserver("wand1",[1,1,0,0,1,1,0,1],(102,204,255))
+    wand1 = WandObserver("wand1",[1,0,1,0,1,0,1,0],(102,204,255))
     wand2 = WandObserver("wand2",[1,1,0,0,1,1,0,0],(0,255,0))
     wands = [wand1,wand2]
     if use_camera:
@@ -65,6 +65,7 @@ def main():
             break
         count += 1
         points = get_points(frame)
+        
 
         for wand in wands:
             wand(points)

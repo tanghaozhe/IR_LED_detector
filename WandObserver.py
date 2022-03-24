@@ -6,6 +6,15 @@ import math
 from itertools import cycle
 from scipy.special import comb
 
+from pythonosc import udp_client
+from pythonosc.osc_message_builder import OscMessageBuilder
+
+IP = '127.0.0.1'
+PORT = 6700
+
+# Create UDP client
+client = udp_client.UDPClient(IP, PORT)
+
 class Observer(metaclass=ABCMeta):
     @abstractmethod
     def __init__(self) -> None:
@@ -21,7 +30,7 @@ class WandObserver(Observer):
     def __init__(self, name, template, color):
         self.name = name
         self.template = template
-        self.is_detected = True
+        self.is_detected = False
         self.points = [[]]
         self.bezier_curve_points = [[]]
         self.color = color
@@ -32,7 +41,7 @@ class WandObserver(Observer):
         self.input_signal = []
         self.template_iter = cycle(template)
         self.max_dist_bt_pts = 500
-        self.bezier_curve = False
+        self.bezier_curve = True
 
     def __call__(self,cur_points):
         if self.is_detected:
@@ -66,7 +75,7 @@ class WandObserver(Observer):
                 is_signal_changed  = False
             if is_signal_changed:
                 for _ in range(wand_signal_n):
-                    self.update(pre_signal)
+                    self.update(pre_signal,nt_point)
                     if nt_point and self.bezier_curve:  # FIXME
                         self.points[self.stroke_ix].append(nt_point)
             elif len(cur_points) > 0:
@@ -75,9 +84,18 @@ class WandObserver(Observer):
         else:
             self.check(cur_points)
 
-    def update(self,signal):
+    def update(self,signal,point):
         if next(self.template_iter) != signal:
             self.abort()
+        if point:
+            # Sent message to /data
+            msg = OscMessageBuilder(address='/data')
+            x, y, name =  point[0], point[1], self.name
+            msg.add_arg(x)
+            msg.add_arg(y)
+            msg.add_arg(name)
+            m = msg.build()
+            client.send(m)
 
     def abort(self):
         self.stroke_ix += 1
@@ -114,6 +132,9 @@ class WandObserver(Observer):
                 else:
                     pts = np.array(pts, dtype=np.int32)
                     cv2.polylines(frame,[pts],False,self.color,3)
+                    # if len(pts) > 0:
+                    #     for point in pts:
+                    #         cv2.circle(frame, (int(point[0]),int(point[1])), 3,(255,102,51), 3)
             except Exception as e:
                 print("drawing failed!")
     
